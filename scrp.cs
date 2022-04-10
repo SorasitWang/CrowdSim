@@ -7,10 +7,15 @@ public class scrp : MonoBehaviour
     // Start is called before the first frame update
     public static Vector3 velocity;
      private float movementZ,move=-2f;
-     private float moveForce = 30;
+    [SerializeField]
+     private float moveForce = 15;
     private Rigidbody myRig;
     private Transform obs;
     private float countTime = 0.0f;
+    private float offset = 60f;
+    private float dest = -1f;
+
+    private float oldRot = 0.0f;
     private void Awake() {
        myRig = GetComponent<Rigidbody>();
     }
@@ -20,15 +25,25 @@ public class scrp : MonoBehaviour
     }
 
     // Update is called once per frame
+
+    float ease(float x){
+        if (x >= offset/2){
+            return Mathf.Pow(offset-x,2)/18000f;
+        }
+        else{
+            return Mathf.Pow(x,2)/18000f;
+        }
+    }
     void FixedUpdate()
     {
-
+        Debug.Log("local"+transform.position);
         countTime += Time.deltaTime;
-        if (countTime > Random.Range(1.0f,3f)){
+        /*if (countTime > Random.Range(1.0f,3f)){
             countTime = 0f;
             movementZ =  Random.Range(-0.7f,0.7f);
-        }
-
+        }*/
+        movementZ = 0.0f;
+        bool t = true;
 
         for (int i=1;i<=3;i++){
             obs = GameObject.Find("Barrier"+i.ToString()).transform;
@@ -36,7 +51,7 @@ public class scrp : MonoBehaviour
             //โดนบัง
             //Debug.Log((transform.position.z <= obs.localScale.z/2 + obs.position.z) && (transform.position.z >= obs.position.z-obs.localScale.z/2));
              
-            if (transform.position.x - 30 < obs.localPosition.x && transform.position.x > obs.localPosition.x ){
+            if (transform.position.x - offset < obs.localPosition.x && transform.position.x > obs.localPosition.x ){
                 /*Debug.Log("First");
                 Debug.Log(transform.position.z);
                 Debug.Log(obs.localScale.z/2 + obs.position.z);*/
@@ -44,31 +59,35 @@ public class scrp : MonoBehaviour
                 && transform.position.z >= (obs.position.z-obs.localScale.z/2+Road.LeftMost)/2.0){
                     Debug.Log(i.ToString());
                     //turn left
-                    Vector3 dest;
+                     
+                    float x =  transform.position.x - obs.localPosition.x;
                     if (Road.rightMost - (obs.localScale.z/2 + obs.position.z) < -(Road.LeftMost - (obs.position.z-obs.localScale.z/2))){
-                       
-                        movementZ = -8f;
+                       if (dest==-1) dest = Mathf.Abs(transform.position.z -(obs.position.z-obs.localScale.z/2+Road.LeftMost)/2.0f);
+                        movementZ = dest*ease(offset-x)*move;
                         
                     }
                     else {
-                       
-                        movementZ = 8f;
+                        if (dest==-1) dest = Mathf.Abs(transform.position.z -(obs.position.z+obs.localScale.z/2+Road.rightMost)/2.0f);
+                        movementZ = dest*-ease(offset-x)*move;
                     }
-                    //if (Mathf.Abs(transform.position.x - obs.localPosition.x) < 20f ) movementZ *= 2.0f;
-                Debug.Log(movementZ);
+                //Debug.Log("dest"+dest.ToString());
+                Debug.Log("dest "+dest);
+                t = false;
                 break;
-                }
-
-               
-                
+                }  
             }
         }
-        Debug.Log(Time.time); 
+        if (t) dest = -1;
+     
         //velocity = new Vector3(move,0f,movementZ) * moveForce;
         float a = Random.Range(0.8f,1.2f);
         float b= Random.Range(0.8f,1.2f);
-        myRig.velocity = Vector3.Normalize(new Vector3(move*a,0f,movementZ*b))  * moveForce*Random.Range(0.8f,1.2f);
+        Vector3 norm = Vector3.Normalize(new Vector3(move,0f,movementZ));
+        myRig.velocity =  norm * moveForce*Random.Range(0.8f,1.2f);
+        transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x) ,0);
+        oldRot = Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x);
         //Debug.Log(Vector3.Normalize(new Vector3(move,0f,movementZ)));
+           Debug.Log("Y"+Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x)); 
    
     }
 }

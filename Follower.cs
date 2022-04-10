@@ -36,58 +36,30 @@ public class Follower : MonoBehaviour
        void FixedUpdate()
     {
 
-        fol = GameObject.Find("box").transform;
-        direction = Vector3.Normalize(fol.localPosition - transform.localPosition);
+        fol = GameObject.Find("Armature.006").transform;
+        Vector3 tmp = new Vector3(fol.position.x,fol.position.y,fol.position.z);
+        direction = Vector3.Normalize(fol.position - transform.position);
        
         
-        float distance = Vector3.Distance(transform.localPosition,fol.localPosition);
+        float distance = Vector3.Distance(transform.position,fol.position);
 
         //transform.position += direction * Time.deltaTime * calVelo(distance)* Random.Range(0.95f,1.05f);
  
         
         float z ;
-        for (int i=1;i<=3;i++){
-            Transform obs = GameObject.Find("Barrier"+i.ToString()).transform;
-  
-            //โดนบัง
-            //Debug.Log((transform.position.z <= obs.localScale.z/2 + obs.position.z) && (transform.position.z >= obs.position.z-obs.localScale.z/2));
-             
-            /*if (transform.position.x - 10 < obs.localPosition.x && transform.position.x > obs.localPosition.x ){
-                
-                if(transform.position.z <= (obs.localScale.z/2 + obs.position.z)+5
-                && transform.position.z >= (obs.position.z-obs.localScale.z/2)-5){
-                    Debug.Log(i.ToString());
-                    //turn left
-                    if (Road.rightMost - (obs.localScale.z/2 + obs.position.z) < -(Road.LeftMost - (obs.position.z-obs.localScale.z/2))){
-                       
-                        direction = new Vector3(0,0,-1f);
-                        
-                    }
-                    else {
-                       
-                        direction = new Vector3(0,0,1f);
-                    }
-                    //if (Mathf.Abs(transform.position.x - obs.localPosition.x) < 20f ) movementZ *= 2.0f;
 
-                break;
-                }
-
-               
-                
-            }*/
-        }
         //if (side) direction = new Vector3(-1,0,0);
-        Debug.Log("Dir"+Mathf.Sign(fol.transform.position.z-transform.position.z));
+        Debug.Log("Dir"+Mathf.Sign(tmp.z-transform.position.z));
         //if (front) direction = new Vector3(0,0,Mathf.Sign(fol.transform.position.z-transform.position.z));
         //if (side) direction = new Vector3(-1,0,0);
         if (pre==1) direction = new Vector3(-1,0,0);
-        else if (pre==2)  direction = new Vector3(0,0,Mathf.Sign(fol.transform.position.z-transform.position.z));
+        else if (pre==2)  direction = new Vector3(0,0,Mathf.Sign(tmp.z-transform.position.z));
         myRig.velocity = direction * calVelo(distance)* Random.Range(0.95f,1.05f);
 
     }
 
     float calVelo(float x){
-        return Mathf.Exp(Mathf.Min(x,40)/10)-1.0f;
+        return Mathf.Exp(Mathf.Min(x,30)/7)-1.0f;
     }
 
      private void OnCollisionStay(Collision other) {

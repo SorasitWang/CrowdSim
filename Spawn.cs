@@ -8,8 +8,8 @@ public class Spawn : MonoBehaviour
     [SerializeField]
     private GameObject[] folRef;
     private GameObject spawnFol;
-    private float radius = 60;
-    private int num = 20;
+    private float radius = 70;
+    private int num = 40;
     void Start()
     {
         for (int i=0;i<num;i++){
@@ -19,7 +19,7 @@ public class Spawn : MonoBehaviour
             spawnFol = Instantiate(folRef[randomIdx]);
             spawnFol.GetComponent<Follower>().id = i;
                 //left
-            Transform center = GameObject.Find("box").transform;
+            Transform center = GameObject.Find("Armature.006").transform;
             spawnFol.transform.position = center.position + new Vector3(Random.Range(5,radius),0.0f,Random.Range(-radius,radius));
             BoxCollider col = spawnFol.GetComponent<BoxCollider>();
       
