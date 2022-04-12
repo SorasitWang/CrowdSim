@@ -14,23 +14,14 @@ public class Follower : MonoBehaviour
     private Rigidbody myRig;
     private int pre = 0;
     private Vector3 oldPos;
+    private float oldRot = 0.0f;
     private bool side=false,front=false;
     private void Awake() {
        myRig = GetComponent<Rigidbody>();
     }
     void Start()
     {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-       
-
-        
-
-        //stuck aside
     }
 
        void FixedUpdate()
@@ -39,22 +30,14 @@ public class Follower : MonoBehaviour
         fol = GameObject.Find("Armature.006").transform;
         Vector3 tmp = new Vector3(fol.position.x,fol.position.y,fol.position.z);
         direction = Vector3.Normalize(fol.position - transform.position);
-       
-        
+         
         float distance = Vector3.Distance(transform.position,fol.position);
 
-        //transform.position += direction * Time.deltaTime * calVelo(distance)* Random.Range(0.95f,1.05f);
- 
-        
-        float z ;
-
-        //if (side) direction = new Vector3(-1,0,0);
-        Debug.Log("Dir"+Mathf.Sign(tmp.z-transform.position.z));
-        //if (front) direction = new Vector3(0,0,Mathf.Sign(fol.transform.position.z-transform.position.z));
-        //if (side) direction = new Vector3(-1,0,0);
         if (pre==1) direction = new Vector3(-1,0,0);
         else if (pre==2)  direction = new Vector3(0,0,Mathf.Sign(tmp.z-transform.position.z));
         myRig.velocity = direction * calVelo(distance)* Random.Range(0.95f,1.05f);
+        transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x) ,0);
+        oldRot = Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x);
 
     }
 
@@ -74,18 +57,6 @@ public class Follower : MonoBehaviour
             else 
                 pre = 1;
             oldPos = transform.position;
-
-
-            //if stuch infront
-            //if (Mathf.Abs(transform.position.x-transform.localScale.x - (other.transform.position.x+other.transform.localScale.x)) < 0.1){
-            /*if (transform.position.x > other.transform.position.x){
-                 Debug.Log("Front"+id.ToString());
-                 front = true;
-            }
-            if (Mathf.Abs(transform.position.z - other.transform.position.z) - (transform.localScale.z+other.transform.localScale.z)
-                Debug.Log("Side"+id.ToString());
-                side = true;
-            }*/
         }
 
     }
