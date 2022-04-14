@@ -12,7 +12,10 @@ public class scrp : MonoBehaviour
     private Rigidbody myRig;
     private Transform obs;
     private float countTime = 0.0f;
+
+    private float curBar = -1;
     private float offset = 60f;
+    private float _offset = 60f;
     private float dest = -1f;
 
     private float oldRot = 0.0f;
@@ -27,21 +30,23 @@ public class scrp : MonoBehaviour
     // Update is called once per frame
 
     float ease(float x){
-        if (x >= offset/2){
-            return Mathf.Pow(offset-x,2)/18000f;
+        if (x >= _offset/2){
+            return Mathf.Pow(_offset-x,2)/(Mathf.Pow(_offset,3)/12.0f);
         }
         else{
-            return Mathf.Pow(x,2)/18000f;
+            return Mathf.Pow(x,2)/(Mathf.Pow(_offset,3)/12.0f);
         }
     }
     void FixedUpdate()
     {
         Debug.Log("local"+transform.position);
         countTime += Time.deltaTime;
-        /*if (countTime > Random.Range(1.0f,3f)){
+        float m = moveForce;
+        if (countTime > Random.Range(1.0f,3f)){
             countTime = 0f;
-            movementZ =  Random.Range(-0.7f,0.7f);
-        }*/
+            movementZ =  Random.Range(-0.5f,0.5f);
+            m *= Random.Range(0.6f,1.4f);
+        }
         movementZ = 0.0f;
         bool t = true;
 
@@ -61,14 +66,26 @@ public class scrp : MonoBehaviour
                     //turn left
                      
                     float x =  transform.position.x - obs.localPosition.x;
+                    //left
                     if (Road.rightMost - (obs.localScale.z/2 + obs.position.z) < -(Road.LeftMost - (obs.position.z-obs.localScale.z/2))){
-                       if (dest==-1) dest = Mathf.Abs(transform.position.z -(obs.position.z-obs.localScale.z/2+Road.LeftMost)/2.0f);
-                        movementZ = dest*ease(offset-x)*move;
+                       if (curBar != i) {
+                           curBar = i;
+                           dest = Mathf.Abs(transform.position.z -(obs.position.z-obs.localScale.z/2+Road.LeftMost)/2.0f);
+                            _offset = Mathf.Abs(transform.position.x-obs.localPosition.x);
+                            Debug.Log("offset"+_offset);
+                       }
+                       movementZ = dest*ease(_offset-x)*move;
                         
                     }
+                    //right
                     else {
-                        if (dest==-1) dest = Mathf.Abs(transform.position.z -(obs.position.z+obs.localScale.z/2+Road.rightMost)/2.0f);
-                        movementZ = dest*-ease(offset-x)*move;
+                        if ( curBar != i) {
+                            curBar = i;
+                            dest = Mathf.Abs(transform.position.z -(obs.position.z+obs.localScale.z/2+Road.rightMost)/2.0f);
+                              _offset = Mathf.Abs(transform.position.x-obs.localPosition.x);
+                               Debug.Log("offset"+_offset);
+                        }
+                        movementZ = dest*-ease(_offset-x)*move;
                     }
                 //Debug.Log("dest"+dest.ToString());
                 Debug.Log("dest "+dest);
@@ -83,7 +100,7 @@ public class scrp : MonoBehaviour
         float a = Random.Range(0.8f,1.2f);
         float b= Random.Range(0.8f,1.2f);
         Vector3 norm = Vector3.Normalize(new Vector3(move,0f,movementZ));
-        myRig.velocity =  norm * moveForce*Random.Range(0.8f,1.2f);
+        myRig.velocity =  norm * m;
         transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x) ,0);
         oldRot = Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x);
         //Debug.Log(Vector3.Normalize(new Vector3(move,0f,movementZ)));

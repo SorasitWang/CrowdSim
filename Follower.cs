@@ -21,7 +21,8 @@ public class Follower : MonoBehaviour
     }
     void Start()
     {
-
+        //transform.localScale = transform.localScale * Random.Range(0.85f,1.15f);
+        //transform.position.Set(transform.localScale/2.0f;
     }
 
        void FixedUpdate()
@@ -36,7 +37,10 @@ public class Follower : MonoBehaviour
         if (pre==1) direction = new Vector3(-1,0,0);
         else if (pre==2)  direction = new Vector3(0,0,Mathf.Sign(tmp.z-transform.position.z));
         myRig.velocity = direction * calVelo(distance)* Random.Range(0.95f,1.05f);
-        transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x) ,0);
+        Quaternion to = Quaternion.Euler(0, -Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x), 0);
+        Debug.Log("rotate"+-Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x));
+        transform.rotation = Quaternion.Lerp(transform.rotation,to , Time.deltaTime * 3f);
+       // transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x) ,0);
         oldRot = Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x);
 
     }
