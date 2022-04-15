@@ -19,6 +19,8 @@ public class scrp : MonoBehaviour
     private float dest = -1f;
 
     private float oldRot = 0.0f;
+
+    public static Vector3 last; 
     private void Awake() {
        myRig = GetComponent<Rigidbody>();
     }
@@ -50,7 +52,7 @@ public class scrp : MonoBehaviour
         movementZ = 0.0f;
         bool t = true;
 
-        for (int i=1;i<=3;i++){
+        for (int i=1;i<=5;i++){
             obs = GameObject.Find("Barrier"+i.ToString()).transform;
   
             //โดนบัง
@@ -106,5 +108,19 @@ public class scrp : MonoBehaviour
         //Debug.Log(Vector3.Normalize(new Vector3(move,0f,movementZ)));
            Debug.Log("Y"+Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x)); 
    
+        findLastChick();
+    }
+
+     void findLastChick(){
+        GameObject[] respawns =  GameObject.FindGameObjectsWithTag("Crowd");
+        last = new Vector3(-1000,0,0);
+        foreach (GameObject chick in respawns)
+        {
+            if (chick.transform.position.x > last.x && chick.GetComponent<Follower>().pre == 0){
+                last = chick.transform.position;
+            }
+        }
+        Debug.Log("last"+last);
+
     }
 }
