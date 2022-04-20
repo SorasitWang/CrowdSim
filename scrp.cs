@@ -6,7 +6,7 @@ public class scrp : MonoBehaviour
 {
     // Start is called before the first frame update
     public static Vector3 velocity;
-     private float movementZ,move=-2f;
+     private float movementZ=0.0f,move=-2f;
     [SerializeField]
      private float moveForce = 15;
     private Rigidbody myRig;
@@ -44,12 +44,12 @@ public class scrp : MonoBehaviour
         Debug.Log("local"+transform.position);
         countTime += Time.deltaTime;
         float m = moveForce;
-        if (countTime > Random.Range(1.0f,3f)){
+        if (countTime > Random.Range(1.0f,3.0f)){
             countTime = 0f;
             movementZ =  Random.Range(-0.5f,0.5f);
-            m *= Random.Range(0.6f,1.4f);
+            m *= Random.Range(0.5f,1.5f);
         }
-        movementZ = 0.0f;
+
         bool t = true;
 
         for (int i=1;i<=5;i++){
@@ -102,8 +102,10 @@ public class scrp : MonoBehaviour
         float a = Random.Range(0.8f,1.2f);
         float b= Random.Range(0.8f,1.2f);
         Vector3 norm = Vector3.Normalize(new Vector3(move,0f,movementZ));
+        Quaternion to = Quaternion.Euler(0, (90-Mathf.Rad2Deg*Mathf.Atan(movementZ/move)) * Random.Range(0.9f,1.1f), 0);
         myRig.velocity =  norm * m;
-        transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x) ,0);
+        transform.rotation = Quaternion.Lerp(transform.rotation,to , Time.deltaTime * 3f);
+        //transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x) ,0);
         oldRot = Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x);
         //Debug.Log(Vector3.Normalize(new Vector3(move,0f,movementZ)));
            Debug.Log("Y"+Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x)); 

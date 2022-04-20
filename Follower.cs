@@ -17,8 +17,10 @@ public class Follower : MonoBehaviour
     private Vector3 oldPos;
     private float oldRot = 0.0f;
     private bool side=false,front=false;
+    private float h;
     private void Awake() {
        myRig = GetComponent<Rigidbody>();
+      
     }
     void Start()
     {
@@ -42,7 +44,7 @@ public class Follower : MonoBehaviour
         }
         //Mathf.Sign(tmp.z-transform.position.z)
         myRig.velocity = direction * 3*calVelo(distance)* Random.Range(0.95f,1.05f);
-        Quaternion to = Quaternion.Euler(0, -Mathf.Rad2Deg*Mathf.Atan(direction.z/-Mathf.Abs(direction.x)), 0);
+        Quaternion to = Quaternion.Euler(0, -Mathf.Rad2Deg*Mathf.Atan(direction.z/-Mathf.Abs(direction.x)) * Random.Range(0.9f,1.1f), 0);
         Debug.Log("tan"+ -Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x));
         //Debug.Log("rotate"+-Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x));
         transform.rotation = Quaternion.Lerp(transform.rotation,to , Time.deltaTime * 3f);
