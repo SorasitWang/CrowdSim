@@ -21,6 +21,8 @@ public class scrp : MonoBehaviour
     private float oldRot = 0.0f;
 
     public static Vector3 last; 
+
+    float FLT_MAX = 1000000;
     private void Awake() {
        myRig = GetComponent<Rigidbody>();
     }
@@ -41,12 +43,23 @@ public class scrp : MonoBehaviour
     }
     void FixedUpdate()
     {
+        Debug.Log("DeltaTime "+Time.deltaTime);
         Debug.Log("local"+transform.position);
         countTime += Time.deltaTime;
         float m = moveForce;
+        movementZ = 0;
+        move = 0;
+        
+        Vector3 target = GameObject.Find("Cube").transform.position;
+        Vector3 direction = Vector3.Normalize(target- transform.position);
+        direction.y = 0.0f;
+        Debug.Log("dirZ "+direction.z);
+        movementZ =  direction.z;
+        move = direction.x;
+
         if (countTime > Random.Range(1.0f,3.0f)){
             countTime = 0f;
-            movementZ =  Random.Range(-0.5f,0.5f);
+            movementZ +=  Random.Range(-0.5f,0.5f);
             m *= Random.Range(0.5f,1.5f);
         }
 
@@ -55,46 +68,54 @@ public class scrp : MonoBehaviour
         for (int i=1;i<=5;i++){
             obs = GameObject.Find("Barrier"+i.ToString()).transform;
   
-            //โดนบัง
-            //Debug.Log((transform.position.z <= obs.localScale.z/2 + obs.position.z) && (transform.position.z >= obs.position.z-obs.localScale.z/2));
-             
-            if (transform.position.x - offset < obs.localPosition.x && transform.position.x > obs.localPosition.x ){
-                /*Debug.Log("First");
-                Debug.Log(transform.position.z);
-                Debug.Log(obs.localScale.z/2 + obs.position.z);*/
-                if(transform.position.z <= (obs.localScale.z/2 + obs.position.z+Road.rightMost)/2.0 
-                && transform.position.z >= (obs.position.z-obs.localScale.z/2+Road.LeftMost)/2.0){
-                    Debug.Log(i.ToString());
-                    //turn left
+            //โดนบังไหม
+            if (transform.position.x - offset < obs.localPosition.x && transform.position.x > obs.localPosition.x
+            && target.x < obs.localPosition.x){
+
+
+                Vector2 intersection = lineLineIntersection(new Vector2(obs.position.x,obs.position.z+obs.localScale.z/2)
+                    ,new Vector2(obs.position.x,obs.position.z-obs.localScale.z/2),new Vector2(transform.position.x,transform.position.z)
+                    ,new Vector2(target.x,target.z));
+                Debug.Log("intersection "+intersection.x+" "+intersection.y+" / "+transform.position.x+" "+transform.position.z);
+                //จุดตัดอยู่ใน range
+                if (intersection.y < obs.position.z+obs.localScale.z/2+10 && intersection.y > obs.position.z-obs.localScale.z/2-10)
+    
+                    //โดนบัง
+                
+                    if(transform.position.z <= (obs.localScale.z/2 + obs.position.z+Road.rightMost)/2.0 
+                    && transform.position.z >= (obs.position.z-obs.localScale.z/2+Road.LeftMost)/2.0){
                      
-                    float x =  transform.position.x - obs.localPosition.x;
-                    //left
-                    if (Road.rightMost - (obs.localScale.z/2 + obs.position.z) < -(Road.LeftMost - (obs.position.z-obs.localScale.z/2))){
-                       if (curBar != i) {
-                           curBar = i;
-                           dest = Mathf.Abs(transform.position.z -(obs.position.z-obs.localScale.z/2+Road.LeftMost)/2.0f);
-                            _offset = Mathf.Abs(transform.position.x-obs.localPosition.x);
-                            Debug.Log("offset"+_offset);
-                       }
-                       movementZ = dest*ease(_offset-x)*move;
+                        //turn left
                         
+                        float x =  transform.position.x - obs.localPosition.x;
+                        //left
+                        if (Road.rightMost - (obs.localScale.z/2 + obs.position.z) < -(Road.LeftMost - (obs.position.z-obs.localScale.z/2))){
+                        if (curBar != i) {
+                            curBar = i;
+                            dest = Mathf.Abs(transform.position.z -(1.25f*obs.position.z-obs.localScale.z/2+0.75f*Road.LeftMost)/2.0f);
+                                _offset = Mathf.Abs(transform.position.x-obs.localPosition.x);
+                                Debug.Log("offset"+_offset);
+                        }
+                        movementZ = dest*ease(_offset-x)*move;
+                            
                     }
                     //right
                     else {
                         if ( curBar != i) {
                             curBar = i;
-                            dest = Mathf.Abs(transform.position.z -(obs.position.z+obs.localScale.z/2+Road.rightMost)/2.0f);
+                            dest = Mathf.Abs(transform.position.z -(1.25f*obs.position.z+obs.localScale.z/2+0.75f*Road.rightMost)/2.0f);
                               _offset = Mathf.Abs(transform.position.x-obs.localPosition.x);
                                Debug.Log("offset"+_offset);
                         }
                         movementZ = dest*-ease(_offset-x)*move;
                     }
+                }
                 //Debug.Log("dest"+dest.ToString());
                 Debug.Log("dest "+dest);
                 t = false;
                 break;
                 }  
-            }
+            
         }
         if (t) dest = -1;
      
@@ -104,7 +125,7 @@ public class scrp : MonoBehaviour
         Vector3 norm = Vector3.Normalize(new Vector3(move,0f,movementZ));
         Quaternion to = Quaternion.Euler(0, (90-Mathf.Rad2Deg*Mathf.Atan(movementZ/move)) * Random.Range(0.9f,1.1f), 0);
         myRig.velocity =  norm * m;
-        transform.rotation = Quaternion.Lerp(transform.rotation,to , Time.deltaTime * 3f);
+        transform.rotation = Quaternion.Lerp(transform.rotation,to , Time.deltaTime * 6f);
         //transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x) ,0);
         oldRot = Mathf.Rad2Deg*Mathf.Atan(norm.z/norm.x);
         //Debug.Log(Vector3.Normalize(new Vector3(move,0f,movementZ)));
@@ -125,4 +146,33 @@ public class scrp : MonoBehaviour
         Debug.Log("last"+last);
 
     }
+    
+    Vector2 lineLineIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D)
+{
+    Debug.Log("intersectionParam  " +A.x+" "+A.y+" / "+B.x+" "+B.y+" / "+C.x+" "+C.y+" / "+D.x+" "+D.y);
+    // Line AB represented as a1x + b1y = c1
+    float a1 = B.y - A.y;
+    float b1 = A.x - B.x;
+    float c1 = a1*(A.x) + b1*(A.y);
+  
+    // Line CD represented as a2x + b2y = c2
+    float a2 = D.y - C.y;
+    float b2 = C.x - D.x;
+    float c2 = a2*(C.x)+ b2*(C.y);
+  
+    float determinant = a1*b2 - a2*b1;
+  
+    if (determinant == 0)
+    {
+        // The lines are parallel. This is simplified
+        // by returning a pair of FLT_MAX
+        return new Vector2(FLT_MAX, FLT_MAX);
+    }
+    else
+    {
+        float x = (b2*c1 - b1*c2)/determinant;
+        float y = (a1*c2 - a2*c1)/determinant;
+        return new Vector2(x, y);
+    }
+}
 }
