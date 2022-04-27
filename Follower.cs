@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-class Wind {
-    public Vector3 direction;
+/*class Wind {
+    [SerializeField]
     public float y ;
 
 
@@ -12,18 +12,19 @@ class Wind {
     public float force;
 
     public Wind() {
-        direction = new Vector3(1,0,0);
         y = 50;
-        w = 8;
-        force = 6;
+        w = 10;
+        force = 20;
 
     }
-} ;
+} ;*/
 public class Follower : MonoBehaviour
 {
     // Start is called before the first frame update
     private Transform fol;
-    private Wind wind;
+
+
+    //public static Vector3 windDirect;
 
     private Vector3 direction;
 
@@ -34,63 +35,69 @@ public class Follower : MonoBehaviour
     private Rigidbody myRig;
     public int pre = 0;
     private Vector3 oldPos;
-    private float oldRot = 0.0f;
     private bool side=false,front=false;
-    private float h;
 
-    private bool alive = true , ghost = true;
-    private float lifeTime = 4;
+    private Wind wind;
+    private float movementX , movementZ;
+     public bool alive = true , ghost = true;
+     
 
-    private float _ghostTime,ghostTime = 4;
+     public float lifeTime = 4;
+
+     public float time;
+
+    public float _ghostTime,ghostTime = 4;
     GameObject mesh ;
 
     private Material m_Material;
     private void Awake() {
        myRig = GetComponent<Rigidbody>();
-      
+      lifeTime =  5 * Random.Range(0.75f,1.75f);
+        ghostTime =  4 * Random.Range(0.75f,2);
+        time = lifeTime + ghostTime;
+        wind = GameObject.Find("Wind").GetComponent<Wind>();
+        //wind = new Wind();
+        //windDirect = new Vector3(-1,0,0);
     }
     void Start()
     {
         myRig.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ 
             | RigidbodyConstraints.FreezePositionY; 
-        wind = new Wind();
+        
         mass *= Random.Range(0.5f,1.5f);
         Debug.Log("mass " +mass);
-        lifeTime =  5 * Random.Range(0.75f,1.75f);
-        ghostTime =  6 * Random.Range(0.75f,2);
+        
         _ghostTime = ghostTime;
         //mesh = GameObject.Find("default");
         m_Material = GetComponent<MeshRenderer>().material; //transform.GetChild(0).gameObject.
         //transform.localScale = transform.localScale * Random.Range(0.85f,1.15f);
         //transform.position.Set(transform.localScale/2.0f;
     }
+    void update(){
 
+    }
        void FixedUpdate()
     {
+        
         fol = GameObject.Find("Armature.006").transform;
         if (!alive){
             myRig.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; 
-            if (ghost){
-                if (ghostTime <= 0.0f) ghost = false;
                 ghostTime -=Time.deltaTime;
                 //mesh.GetComponent<Mesh>().alive = false;
-               
                 m_Material.color = new Color(1.0f, 1.0f, 1.0f, ghostTime/_ghostTime);
                 //myRig.velocity = new Vector3(0,10,0);
                 //inert
                 //myRig.velocity = new Vector3(Mathf.Min(0,myRig.velocity.x+0.1f),10,Mathf.Max(0,myRig.velocity.z-Mathf.Sign(myRig.velocity.z)*0.1f));
 
                 //wind
+                Debug.Log("wind1 "+wind.direction);
                 Vector3 w = wind.direction * wind.force * 2/(1+Mathf.Exp(Mathf.Abs((wind.y-transform.position.y)/wind.w)));
                 w.y = 5;
-                Debug.Log("wind "+w);
+                
                 myRig.velocity =2* mass * w;
                 
-            }
-            else{
-                Destroy(gameObject);
-            }
-        
+            
+       
         }
         else {
             if (lifeTime <= 0.0f) alive = false;
@@ -108,12 +115,12 @@ public class Follower : MonoBehaviour
             }
             //Mathf.Sign(tmp.z-transform.position.z)
         myRig.velocity = direction * 3*calVelo(distance)* Random.Range(0.95f,1.05f);
-        Quaternion to = Quaternion.Euler(0, -Mathf.Rad2Deg*Mathf.Atan(direction.z/-Mathf.Abs(direction.x)) * Random.Range(0.9f,1.1f), 0);
+        Quaternion to = Quaternion.Euler(0, -90-Mathf.Rad2Deg*Mathf.Atan(direction.z/-Mathf.Abs(direction.x)) * Random.Range(0.9f,1.1f), 0);
         Debug.Log("tan"+ -Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x));
         //Debug.Log("rotate"+-Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x));
         transform.rotation = Quaternion.Lerp(transform.rotation,to , Time.deltaTime * 3f);
         //transform.Rotate(0,oldRot-Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x) ,0);
-        oldRot = Mathf.Rad2Deg*Mathf.Atan(direction.z/direction.x);
+
         }
 
         
@@ -162,4 +169,6 @@ public class Follower : MonoBehaviour
             memZ = 0f;
      }
      }
+
+    
 }

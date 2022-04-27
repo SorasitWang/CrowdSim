@@ -2,22 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class wind : MonoBehaviour
+
+public class Wind : MonoBehaviour
+    
 {
-    // Start is called before the first frame update
-    public Vector3 direction = new Vector3(1,0,1);
-    public float center = 25;
 
-    public float radius = 5;
+    public float y = 50;
 
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-}
+    public float w = 10;
+
+    public float force = 20;
+
+    public Vector3 direction = new Vector3(-1,0,0);
+   
+   void Awake(){
+
+
+   }
+
+   void update(){
+       Debug.Log("windCheck1");
+       change();
+
+   }
+
+   void change(){
+        Debug.Log("windCheck");
+         direction.z = Input.GetAxisRaw("Horizontal");
+      
+        Debug.Log("windDirect"+direction);
+   }
+} ;

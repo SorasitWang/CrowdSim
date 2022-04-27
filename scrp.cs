@@ -41,6 +41,8 @@ public class scrp : MonoBehaviour
             return Mathf.Pow(x,2)/(Mathf.Pow(_offset,3)/12.0f);
         }
     }
+
+
     void FixedUpdate()
     {
         Debug.Log("DeltaTime "+Time.deltaTime);
@@ -175,4 +177,5 @@ public class scrp : MonoBehaviour
         return new Vector2(x, y);
     }
 }
+
 }
